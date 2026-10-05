@@ -328,7 +328,7 @@ window.__SNAPSHOT__ = __SNAPSHOT_JSON__;
     // status
     $("asOf").textContent = "Snapshot: " + fmt(snap.generated_at) + " (" + timeAgo(snap.generated_at) + ")";
     $("statusDot").className = "dot " + (state.live ? "" : "stale");
-    $("statusText").textContent = state.live ? "Live" : "Snapshot";
+    $("statusText").textContent = state.statusText || (state.live ? "Live" : "Snapshot");
     $("historyInfo").textContent = hist.length>1 ? (hist.length+" snapshots tracked since "+fmt(hist[0].ts)) : "History: collecting…";
 
     // deltas
@@ -655,8 +655,9 @@ window.__SNAPSHOT__ = __SNAPSHOT_JSON__;
   // ---------- live ----------
   function setStatus(live, txt){
     state.live = live;
+    state.statusText = txt || (live ? "Live" : "Snapshot");
     $("statusDot").className = "dot " + (live ? "" : "stale");
-    $("statusText").textContent = txt || (live ? "Live" : "Snapshot");
+    $("statusText").textContent = state.statusText;
   }
   function mergeQuick(p){
     // light poll returns only the headline counters; keep the rest of the last full snapshot
@@ -682,13 +683,16 @@ window.__SNAPSHOT__ = __SNAPSHOT_JSON__;
         setStatus(true, quick ? "Live" : "Refreshed");
         $("autoInfo").textContent = "Live — headline counters every 60s, full refresh every 10 min";
         if(!silent) setTimeout(function(){ setStatus(true,"Live"); }, 2500);
+        btn.disabled = false;
+        btn.textContent = "Refresh now";
       })
       .catch(function(e){
-        setStatus(false, "Snapshot only");
-        $("autoInfo").textContent = "Live feed unavailable ("+e.message+") — showing the last snapshot. Auto-refresh paused.";
+        setStatus(false, "Static snapshot");
+        $("autoInfo").textContent = "Static snapshot refreshed on a schedule by GitHub Actions. Run python3 server.py locally for 60-second live updates.";
         if(state.timer){ clearInterval(state.timer); state.timer = null; }
-      })
-      .finally(function(){ btn.disabled=false; btn.textContent="Refresh now"; });
+        btn.disabled = false;
+        btn.textContent = "Reload page";
+      });
   }
   function startAuto(){
     if(state.timer) clearInterval(state.timer);
@@ -699,7 +703,13 @@ window.__SNAPSHOT__ = __SNAPSHOT_JSON__;
     }, 60000);
   }
 
-  $("refreshBtn").addEventListener("click", function(){ loadLive(false, false); });
+  $("refreshBtn").addEventListener("click", function(){
+    if(this.textContent === "Reload page"){
+      location.reload();
+      return;
+    }
+    loadLive(false, false);
+  });
   $("stateSel").addEventListener("change", function(e){ state.distState = e.target.value; renderDistricts(S); });
   $("distSearch").addEventListener("input", function(e){ state.distQuery = e.target.value; renderDistricts(S); });
   $("showAll").addEventListener("change", function(e){ state.showAll = e.target.checked; renderDistricts(S); });

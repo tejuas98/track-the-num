@@ -144,6 +144,29 @@ To populate fresh numbers immediately: repo → **Actions** tab → *Refresh sna
 
 ---
 
+## Updating a site you've already published
+
+If you've updated files in your local clone:
+
+```bash
+git add -A
+git commit -m "fix: clearer static-hosting message"
+git push
+```
+
+If you don't have a local clone yet:
+
+```bash
+git clone https://github.com/tejuas98/track-the-num.git
+cd track-the-num
+# copy modified files in
+git add -A
+git commit -m "update site"
+git push
+```
+
+---
+
 ## What gets published, and what doesn't
 
 Published: the dashboard (`docs/`), the scripts, the tracked history (`data/history.jsonl`)
