@@ -1,0 +1,2 @@
+# No third-party dependencies - Python standard library only (3.8+).
+# The optional GitHub Action uses actions/checkout + actions/setup-python only.

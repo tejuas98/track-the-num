@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seva First Innovation Challenge — Submission Tracker</title>
+<style>
+  :root{
+    --bg:#f4f6fa; --card:#fff; --line:#e5e9f2; --ink:#111827; --muted:#6b7280;
+    --brand:#1a56db; --brand2:#3f83f8; --green:#0e9f6e; --amber:#d97706; --red:#dc2626;
+    color-scheme:light;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1240px;margin:0 auto;padding:24px 18px 80px}
+  a{color:var(--brand)}
+  /* hero */
+  .hero{background:linear-gradient(135deg,#0b2a6b,#1a56db);color:#fff;border-radius:16px;padding:24px 26px;
+    box-shadow:0 10px 30px rgba(16,42,99,.18)}
+  .hero-top{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:flex-start}
+  .hero h1{margin:0 0 6px;font-size:24px;letter-spacing:-.3px}
+  .hero p.sub{margin:0;opacity:.92;font-size:13.5px;max-width:720px}
+  .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .btn{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.34);color:#fff;border-radius:9px;
+    padding:7px 13px;font-size:12.5px;cursor:pointer;font-weight:600;transition:.15s}
+  .btn:hover{background:rgba(255,255,255,.28)}
+  .btn[disabled]{opacity:.55;cursor:default}
+  .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.16);
+    border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:4px 11px;font-size:11.5px;font-weight:600}
+  .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.25)}
+  .dot.stale{background:#fbbf24;box-shadow:0 0 0 3px rgba(251,191,36,.25)}
+  .dot.off{background:#f87171;box-shadow:0 0 0 3px rgba(248,113,113,.25)}
+  .metaline{margin-top:14px;font-size:12px;opacity:.9;display:flex;gap:16px;flex-wrap:wrap}
+  .deltas{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .delta{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.24);border-radius:999px;
+    padding:3px 10px;font-size:11.5px}
+  /* cards */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:13px;margin:18px 0 4px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:15px 16px;
+    box-shadow:0 1px 3px rgba(16,24,40,.05)}
+  .card .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:700}
+  .card .val{font-size:30px;font-weight:700;letter-spacing:-1px;margin-top:4px;font-variant-numeric:tabular-nums}
+  .card .sub{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .card.hi .val{color:var(--brand)}
+  /* progress */
+  .prog{margin-top:8px;background:#eef1f6;border-radius:6px;height:10px;overflow:hidden}
+  .prog>i{display:block;height:10px;background:linear-gradient(90deg,#3f83f8,#1a56db);border-radius:6px}
+  /* sections */
+  .sec{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-top:18px;overflow:hidden;
+    box-shadow:0 1px 3px rgba(16,24,40,.05)}
+  .sec>h2{font-size:15px;margin:0;padding:14px 19px;border-bottom:1px solid #eef1f6;background:#fbfcfe;
+    display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .sec>h2 .hint{font-size:11.5px;color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0}
+  .body{padding:16px 19px}
+  .note{font-size:12.5px;color:#5b6472;margin:0 0 12px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);
+    border-bottom:1px solid var(--line);padding:8px 6px;position:sticky;top:0;background:#fff;z-index:1}
+  td{padding:7px 6px;border-bottom:1px solid #f2f4f8;vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  .num{text-align:right;font-variant-numeric:tabular-nums}
+  .bar{background:#eef1f6;border-radius:4px;height:9px;width:130px;display:inline-block;vertical-align:middle}
+  .bar>i{display:block;height:9px;border-radius:4px;background:var(--brand)}
+  .bar.g>i{background:var(--green)}
+  .panel{display:none}.panel.on{display:block}
+  /* modal-style filter controls */
+  .exp-controls{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:6px}
+  .fld{display:flex;flex-direction:column;gap:5px;min-width:170px}
+  .fld>label{font-size:13px;font-weight:700;color:#111827}
+  .fld select,.fld input{width:100%}
+  .fld.wide{flex:1;min-width:250px}
+  .exp-note{font-size:12.5px;color:#5b6472;margin:10px 0 12px}
+  .exp-note b{color:#111827}
+  .exp-footer{border-top:1px solid #eef1f6;margin-top:12px;padding-top:11px;font-size:12.5px;color:#5b6472}
+  .exp-footer b{color:#111827}
+  .chip{display:inline-block;background:#eef4ff;border:1px solid #d6e3ff;color:#1e40af;border-radius:999px;
+    padding:1px 9px;font-size:11.5px;font-weight:600;margin-left:6px}
+  .chip.warnchip{background:#fff7ed;border-color:#fed7aa;color:#8a4b0a}
+  .empty{padding:26px 0;text-align:center;color:#8a94a6;font-size:13px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:900px){.grid2{grid-template-columns:1fr}}
+  .chart{display:flex;align-items:flex-end;gap:5px;height:150px;padding-top:6px}
+  .chart .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;min-width:0}
+  .chart .b{width:72%;max-width:30px;background:linear-gradient(180deg,var(--brand2),var(--brand));border-radius:4px 4px 0 0}
+  .chart .x{font-size:9px;color:var(--muted);margin-top:4px}
+  .kpis{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:#5b6472;margin-bottom:6px}
+  .kpis b{color:var(--ink)}
+  input[type=search],select{border:1px solid #dbe1ec;border-radius:9px;padding:7px 11px;font-size:12.5px;
+    font-family:inherit;color:var(--ink);background:#fff}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+  code{background:#f3f5fa;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:11.5px}
+  .warn{background:#fff7ed;border:1px solid #fed7aa;color:#8a4b0a;border-radius:11px;padding:12px 14px;font-size:12.5px;margin-top:14px}
+  .ok{background:#f0fdf4;border:1px solid #bbf7d0;color:#14532d;border-radius:11px;padding:12px 14px;font-size:12.5px}
+  ul.tight{margin:6px 0 0;padding-left:18px;font-size:12.5px;color:#374151}
+  ul.tight li{margin:4px 0}
+  .scroll{max-height:520px;overflow:auto;border:1px solid #f2f4f8;border-radius:10px}
+  footer{margin-top:26px;font-size:12px;color:var(--muted);text-align:center;line-height:1.7}
+  .spark{width:100%;height:130px;display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="hero-top">
+      <div>
+        <h1>Seva First Innovation Challenge — Maharashtra Zone</h1>
+        <p class="sub">Submission &amp; registration tracker. Pulled straight from the challenge analytics service
+          (<code style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.25);color:#fff">fresh-analytics-backend</code>)
+          because the site's own “Participant count by sub-theme” dialog fails to load.</p>
+      </div>
+      <div class="controls">
+        <span class="badge" id="statusBadge"><span class="dot" id="statusDot"></span><span id="statusText">Loading…</span></span>
+        <button class="btn" id="refreshBtn">Refresh now</button>
+      </div>
+    </div>
+    <div class="metaline">
+      <span id="asOf">—</span>
+      <span id="autoInfo">Auto-refresh every 60s</span>
+      <span id="historyInfo"></span>
+    </div>
+    <div class="deltas" id="deltas"></div>
+  </div>
+
+  <div class="cards" id="cards"></div>
+
+  <div class="sec">
+    <h2>Submission progress <span class="hint" id="progHint"></span></h2>
+    <div class="body">
+      <div class="prog"><i id="progBar" style="width:0%"></i></div>
+      <div class="kpis" style="margin-top:12px" id="progKpis"></div>
+      <div class="note" id="progNote"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>Tracking history <span class="hint">snapshots recorded by this tracker</span></h2>
+    <div class="body">
+      <svg class="spark" id="spark" viewBox="0 0 800 130" preserveAspectRatio="none"></svg>
+      <div class="note" id="sparkNote" style="margin:10px 0 0"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>Participant count by sub-theme <span class="hint">filterable — the view that fails on the site</span></h2>
+    <div class="body">
+      <div class="exp-controls">
+        <div class="fld wide">
+          <label for="expSearch">Search Sub-themes</label>
+          <input type="search" id="expSearch" placeholder="Search sub-themes by title, sector, or keyword…">
+        </div>
+        <div class="fld">
+          <label for="expCategory">Category</label>
+          <select id="expCategory"></select>
+        </div>
+        <div class="fld">
+          <label for="expSector">Sector</label>
+          <select id="expSector"></select>
+        </div>
+        <div class="fld">
+          <label for="expMetric">Metric</label>
+          <select id="expMetric">
+            <option value="apps">Applications</option>
+            <option value="regs">Registrations</option>
+          </select>
+        </div>
+        <div class="fld">
+          <label for="expSort">Sort</label>
+          <select id="expSort">
+            <option value="desc">Highest first</option>
+            <option value="asc">Lowest first</option>
+            <option value="az">A–Z</option>
+            <option value="za">Z–A</option>
+          </select>
+        </div>
+        <div class="fld" style="min-width:auto">
+          <label>&nbsp;</label>
+          <button class="btn" id="expReset" style="background:#eef1f6;border-color:#dbe1ec;color:#374151">Reset</button>
+        </div>
+      </div>
+      <div class="exp-note" id="expNote"></div>
+      <div class="scroll" style="max-height:560px">
+        <table>
+          <thead><tr>
+            <th style="width:36px">#</th>
+            <th>Sub-theme</th>
+            <th class="num" id="expColHead" style="width:150px">No of Registration</th>
+            <th style="width:190px"></th>
+          </tr></thead>
+          <tbody id="expBody"></tbody>
+        </table>
+      </div>
+      <div class="exp-footer" id="expFooter"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>District-wise tracker
+      <span class="hint"><span id="distCount"></span></span>
+    </h2>
+    <div class="body">
+      <div class="filters">
+        <select id="stateSel">
+          <option value="all">All states &amp; UTs</option>
+          <option value="Maharashtra">Maharashtra</option>
+          <option value="Chhattisgarh">Chhattisgarh</option>
+          <option value="Goa">Goa</option>
+          <option value="Daman &amp; Diu">Daman &amp; Diu</option>
+        </select>
+        <input type="search" id="distSearch" placeholder="Search district…" style="min-width:210px">
+        <label style="font-size:12.5px;color:var(--muted);display:flex;gap:6px;align-items:center">
+          <input type="checkbox" id="showAll"> show all rows
+        </label>
+      </div>
+      <div class="scroll"><table><thead><tr>
+        <th>District</th><th>State</th>
+        <th class="num">Registrations</th><th class="num">Applications</th><th class="num">Pitch decks</th>
+        <th style="width:150px">Application rate</th>
+      </tr></thead><tbody id="distBody"></tbody></table></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>Daily registrations &amp; teams</h2>
+    <div class="body">
+      <div class="grid2">
+        <div>
+          <div class="note">New registrations per day</div>
+          <div class="chart" id="regChart"></div>
+        </div>
+        <div>
+          <div class="note">New teams per day</div>
+          <div class="chart" id="teamChart"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>Where participants come from</h2>
+    <div class="body grid2">
+      <div>
+        <div class="note">Registrations by state</div>
+        <table><tbody id="stateBody"></tbody></table>
+      </div>
+      <div>
+        <div class="note">Top sub-themes by registrations</div>
+        <table><tbody id="themeBody"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>Data sources &amp; caveats</h2>
+    <div class="body">
+      <div class="ok" id="healthBox"></div>
+      <p class="note" style="margin-top:14px">Endpoints this tracker reads (all public, no login — note the API currently has
+        <b>no authentication</b>, worth flagging to the dev team):</p>
+      <ul class="tight" id="links"></ul>
+      <div class="warn" id="caveat"></div>
+    </div>
+  </div>
+
+  <footer>
+    Built from the challenge's public analytics API · snapshot regenerated by <code>scripts/fetch_snapshot.py</code><br>
+    Two counters exist in the backend: <b>submissions</b> (site's “submissions” number) and <b>applications completed / pitch decks</b> (district tracker). Both are shown.
+  </footer>
+</div>
+
+<script>
+window.__SNAPSHOT__ = __SNAPSHOT_JSON__;
+</script>
+<script>
+(function(){
+  "use strict";
+  var S = window.__SNAPSHOT__ || null;
+  var state = { distState: "all", distQuery: "", showAll: false, live: false, timer: null };
+
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  function nf(n){ return (n==null?0:n).toLocaleString("en-IN"); }
+  function pct(a,b){ return b ? (a/b*100) : 0; }
+  function bar(v, max, cls){ return '<span class="bar '+(cls||"")+'"><i style="width:'+Math.max(1.5,Math.min(100,max? v/max*100:0)).toFixed(1)+'%"></i></span>'; }
+
+  function timeAgo(iso){
+    try{
+      var d=(Date.now()-new Date(iso).getTime())/1000;
+      if(d<60) return Math.round(d)+"s ago";
+      if(d<3600) return Math.round(d/60)+"m ago";
+      if(d<86400) return Math.round(d/3600)+"h ago";
+      return Math.round(d/86400)+"d ago";
+    }catch(e){ return ""; }
+  }
+  function fmt(iso){
+    try{
+      var d=new Date(iso);
+      return d.toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric",hour:"numeric",minute:"2-digit"});
+    }catch(e){ return iso; }
+  }
+
+  // ---------- history ----------
+  function historyOf(snap){
+    var h = (snap && snap.history) || [];
+    if(Array.isArray(h) && h.length) return h.slice(-400);
+    return [];
+  }
+  function deltasFromHistory(h, key){
+    if(h.length<2) return null;
+    var a=h[0][key], b=h[h.length-1][key];
+    if(typeof a!=="number"||typeof b!=="number") return null;
+    return b-a;
+  }
+
+  // ---------- render ----------
+  function render(snap){
+    if(!snap) return;
+    S = snap;
+    var sub = snap.submissions || {}, ov = (snap.overview && snap.overview.kpis) || (snap.dashboard && snap.dashboard.overview) || {};
+    var teams = snap.teams || {}, regs = snap.registrations || {};
+    var geo = snap.geography || {}, themes = (snap.themes && snap.themes.theme_distribution) || [];
+    var hist = historyOf(snap);
+
+    var totalExpected = (sub.total_submissions||0) + (sub.remaining_submissions||0);
+    var rate = sub.submission_rate_percent || 0;
+
+    // status
+    $("asOf").textContent = "Snapshot: " + fmt(snap.generated_at) + " (" + timeAgo(snap.generated_at) + ")";
+    $("statusDot").className = "dot " + (state.live ? "" : "stale");
+    $("statusText").textContent = state.live ? "Live" : "Snapshot";
+    $("historyInfo").textContent = hist.length>1 ? (hist.length+" snapshots tracked since "+fmt(hist[0].ts)) : "History: collecting…";
+
+    // deltas
+    var dsub = deltasFromHistory(hist,"submissions"), dreg = deltasFromHistory(hist,"registrations"),
+        dapp = deltasFromHistory(hist,"applications"), dteam = deltasFromHistory(hist,"teams");
+    var d = [];
+    function chip(label,v){ if(v===null||v===undefined) return;
+      d.push('<span class="delta">'+label+": "+(v>0?"+":"")+nf(v)+'</span>'); }
+    chip("Submissions since tracking started", dsub);
+    chip("Registrations", dreg);
+    chip("Applications", dapp);
+    chip("Teams", dteam);
+    $("deltas").innerHTML = d.length ? d.join("") :
+      '<span class="delta">Tracking started just now — deltas will appear after the next refresh</span>';
+
+    // cards
+    var cards = [
+      {lbl:"Submissions received", val:nf(sub.total_submissions), sub:"of "+nf(totalExpected)+" expected · "+rate+"% done", hi:true},
+      {lbl:"Team submissions / pitch decks", val:nf(sub.total_team_submissions), sub:"from "+nf(teams.total_teams)+" formed teams"},
+      {lbl:"Applications completed", val:nf((snap.districts && snap.districts.all && snap.districts.all.summary) ? snap.districts.all.summary.applications_completed : ov.total_submissions), sub:"district tracker · all states"},
+      {lbl:"Registrations", val:nf(regs.total_registrations || ov.total_registrations), sub:nf(teams.teamed_participants||0)+" teamed · "+nf(teams.unteamed_participants||0)+" without a team"},
+      {lbl:"Still to submit", val:nf(sub.remaining_submissions), sub:rate? (100-rate).toFixed(1)+"% pending" : ""},
+      {lbl:"Teams formed", val:nf(teams.total_teams), sub:(teams.solo_teams||0)+" solo · avg size "+(teams.average_team_size||0)}
+    ];
+    $("cards").innerHTML = cards.map(function(c){
+      return '<div class="card'+(c.hi?" hi":"")+'"><div class="lbl">'+esc(c.lbl)+'</div><div class="val">'+c.val+
+             '</div><div class="sub">'+esc(c.sub)+'</div></div>';
+    }).join("");
+
+    // progress
+    $("progBar").style.width = Math.min(100, rate) + "%";
+    $("progHint").textContent = rate + "% complete";
+    var distSum = snap.districts && snap.districts.all ? snap.districts.all.summary : {};
+    $("progKpis").innerHTML =
+      "<div>Submissions received: <b>"+nf(sub.total_submissions)+"</b></div>"+
+      "<div>Expected total: <b>"+nf(totalExpected)+"</b></div>"+
+      "<div>Remaining: <b>"+nf(sub.remaining_submissions)+"</b></div>"+
+      "<div>Submission rate: <b>"+rate+"%</b></div>";
+    $("progNote").textContent = "“Submissions received” is the site's submission counter (Submission Analytics endpoint). "+
+      "The district tracker, which powers the map, reports " + nf(distSum.applications_completed||0) + " applications completed and " +
+      nf(distSum.pitch_decks_received||0) + " pitch decks received — the pitch-deck number matches the " + nf(sub.total_team_submissions) +
+      " team submissions. Both counters measure slightly different things, so quote the one your audience expects.";
+
+    // sparkline
+    drawSpark(hist);
+
+    // sub-theme explorer
+    expInit(snap);
+
+    // district table
+    $("distCount").textContent = (snap.districts && snap.districts.all ? snap.districts.all.districts_covered : "") + " districts with activity";
+    renderDistricts(snap);
+
+    // daily charts
+    var trend = (snap.dashboard && snap.dashboard.trends) || snap.trends || [];
+    drawDaily("regChart", trend.map(function(t){ return [t.date, t.daily_registrations]; }), "#1a56db");
+    drawDaily("teamChart", trend.map(function(t){ return [t.date, t.daily_teams]; }), "#0e9f6e");
+
+    // state + theme lists
+    var sb = (geo.state_breakdown||[]).slice(0,7), maxs = sb.length? sb[0].registrations:1;
+    $("stateBody").innerHTML = sb.map(function(s){
+      return "<tr><td>"+esc(s.state)+"</td><td class='num'>"+nf(s.registrations)+"</td><td style='padding-left:12px'>"+
+        bar(s.registrations,maxs)+" <span style='font-size:11px;color:#5b6472'>"+s.share_percent+"%</span></td></tr>";
+    }).join("");
+    var ts = themes.slice().sort(function(a,b){return b.participant_count-a.participant_count;}).slice(0,8);
+    var maxt = ts.length? ts[0].participant_count:1;
+    $("themeBody").innerHTML = ts.map(function(t){
+      return "<tr><td>"+esc((t.theme_name||"").trim())+"</td><td class='num'>"+nf(t.participant_count)+"</td><td style='padding-left:12px'>"+
+        bar(t.participant_count,maxt)+"</td></tr>";
+    }).join("");
+
+    // health + links + caveat
+    $("healthBox").innerHTML = "<b>Analytics service reachable.</b> The site's dialog fails because the sub-theme-counts route it calls "+
+      "does not exist on the backend — the service itself and its database are healthy. Snapshot built at "+esc(fmt(snap.generated_at))+".";
+    var base = snap.base || "https://09kbhlpur8.execute-api.ap-south-1.amazonaws.com";
+    var eps = ["/api/health","/api/analytics/submissions","/api/analytics/dashboard","/api/analytics/themes",
+               "/api/analytics/districts?state=Maharashtra&category=General%20Category&sector=Women%20%26%20Child",
+               "/api/analytics/registrations","/api/analytics/teams","/api/analytics/geography"];
+    $("links").innerHTML = eps.map(function(e){ return '<li><code>'+esc(base+e)+'</code></li>'; }).join("");
+    $("caveat").innerHTML = "<b>Heads-up:</b> the site dialog's default filter (Category = General Category + Sector = Women and Child) "+
+      "holds <b>0 records</b> in the backend — Women &amp; Child work is filed under the <b>Women Category</b> and "+
+      "the <b>Women and Child</b> sector instead. Set Sector = Women and Child in the explorer above to see those records.";
+  }
+
+  function drawSpark(hist){
+    var svg = $("spark"), W=800, H=130, pad=8;
+    if(!hist || hist.length<2){
+      svg.innerHTML = '<text x="400" y="68" text-anchor="middle" fill="#9aa4b2" font-size="13">'+
+        'Not enough snapshots yet — the tracker records one per refresh, so a trend line appears after the next refresh.</text>';
+      $("sparkNote").textContent = "This tracker appends a row to data/history.jsonl on every refresh, so you can see growth over time.";
+      return;
+    }
+    var keys = [["submissions","#1a56db"],["registrations","#0e9f6e"]];
+    var max = 1;
+    hist.forEach(function(h){ keys.forEach(function(k){ if(typeof h[k[0]]==="number") max=Math.max(max,h[k[0]]); }); });
+    var n = hist.length;
+    function X(i){ return pad + i*(W-2*pad)/(n-1); }
+    function Y(v){ return H-pad - (v/max)*(H-2*pad); }
+    var out = "";
+    keys.forEach(function(k){
+      var pts = [];
+      hist.forEach(function(h,i){ if(typeof h[k[0]]==="number") pts.push([X(i),Y(h[k[0]])]); });
+      if(pts.length<2) return;
+      var line = pts.map(function(p,i){ return (i?"L":"M")+p[0].toFixed(1)+","+p[1].toFixed(1); }).join(" ");
+      var area = line + " L"+pts[pts.length-1][0].toFixed(1)+","+(H-pad)+" L"+pts[0][0].toFixed(1)+","+(H-pad)+" Z";
+      out += '<path d="'+area+'" fill="'+k[1]+'" opacity="0.10"></path>';
+      out += '<path d="'+line+'" fill="none" stroke="'+k[1]+'" stroke-width="2.5" stroke-linejoin="round"></path>';
+      var last = pts[pts.length-1];
+      out += '<circle cx="'+last[0].toFixed(1)+'" cy="'+last[1].toFixed(1)+'" r="4" fill="'+k[1]+'"></circle>';
+    });
+    svg.innerHTML = out;
+    var first = hist[0], last = hist[hist.length-1];
+    $("sparkNote").innerHTML = "Blue = submissions, green = registrations. From "+fmt(first.ts)+" to "+fmt(last.ts)+
+      " · submissions "+(last.submissions-first.submissions>=0?"+":"")+nf(last.submissions-first.submissions)+
+      " · registrations "+(last.registrations-first.registrations>=0?"+":"")+nf(last.registrations-first.registrations)+
+      " · peak value on the y-axis is "+nf(max)+".";
+  }
+
+  function drawDaily(elId, rows, color){
+    var el = $(elId); if(!el) return;
+    var max = 1; rows.forEach(function(r){ max=Math.max(max,r[1]||0); });
+    el.innerHTML = rows.map(function(r){
+      var h = Math.round((r[1]||0)/max*118);
+      return '<div class="col" title="'+esc(r[0])+": "+nf(r[1])+'"><div class="b" style="height:'+Math.max(2,h)+'px;background:'+color+'"></div>'+
+             '<div class="x">'+esc(String(r[0]).slice(5))+'</div></div>';
+    }).join("");
+  }
+
+  // ---------- sub-theme explorer (modal-style filters) ----------
+  var ALLCAT = "All categories", ALLSEC = "All sectors";
+  var EX = { category: ALLCAT, sector: ALLSEC, metric: "apps", sort: "desc", query: "",
+             live: {}, fetching: {}, tried: {}, lastError: null };
+
+  function explorer(snap){ return (snap && snap.subtheme_explorer) || null; }
+
+  function comboKey(c, s){ return c + "||" + s; }
+
+  function bakedRows(snap, c, s){
+    var ex = explorer(snap); if(!ex) return null;
+    var combo = ex.combos && ex.combos[comboKey(c, s)];
+    if(!combo) return null;
+    var names = ex.subtheme_names || [];
+    return { rows: (combo.c||[]).map(function(p){ return [names[p[0]], p[1]]; }),
+             summary: { registrations: (combo.s||[])[0], applications: (combo.s||[])[1], decks: (combo.s||[])[2] },
+             source: "snapshot" };
+  }
+
+  function registrationRows(snap){
+    var t = (snap.themes && snap.themes.theme_distribution) || [];
+    var rows = t.map(function(x){ return [(x.theme_name||"").trim(), x.participant_count]; });
+    var total = rows.reduce(function(a, r){ return a + r[1]; }, 0);
+    return { rows: rows, summary: { registrations: total, applications: null, decks: null }, source: "snapshot" };
+  }
+
+  function fetchCombo(c, s){
+    var key = comboKey(c, s);
+    if(EX.fetching[key]) return;
+    EX.fetching[key] = true;
+    EX.tried[key] = true;          // never auto-retry a failed combo in a loop
+    EX.lastError = null;
+    renderExplorer();
+    var url = "api/live/subthemes?category=" + encodeURIComponent(c) + "&sector=" + encodeURIComponent(s);
+    fetch(url, {cache:"no-store"})
+      .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
+      .then(function(j){
+        if(j.error) throw new Error(j.error);
+        EX.live[key] = { rows: j.rows || [], summary: {
+          registrations: (j.summary||{}).total_registrations,
+          applications: (j.summary||{}).applications_completed,
+          decks: (j.summary||{}).pitch_decks_received }, source: "live" };
+      })
+      .catch(function(e){ EX.lastError = e.message; })
+      .finally(function(){ EX.fetching[key] = false; renderExplorer(); });
+  }
+
+  function expData(snap){
+    if(EX.metric === "regs") return registrationRows(snap);
+    var key = comboKey(EX.category, EX.sector);
+    var d = EX.live[key] || bakedRows(snap, EX.category, EX.sector);
+    if(d) return d;
+    if(!EX.fetching[key] && !EX.tried[key]) fetchCombo(EX.category, EX.sector);
+    return null;
+  }
+
+  function expSortRows(rows){
+    var r = rows.slice();
+    if(EX.sort === "desc") r.sort(function(a,b){ return b[1]-a[1] || a[0].localeCompare(b[0]); });
+    else if(EX.sort === "asc") r.sort(function(a,b){ return a[1]-b[1] || a[0].localeCompare(b[0]); });
+    else if(EX.sort === "az") r.sort(function(a,b){ return a[0].localeCompare(b[0]); });
+    else r.sort(function(a,b){ return b[0].localeCompare(a[0]); });
+    return r;
+  }
+
+  function renderExplorer(){
+    var snap = S; if(!snap) return;
+    var d = expData(snap);
+    var metricLabel = EX.metric === "regs" ? "Registrations" : "Applications";
+    $("expColHead").textContent = EX.metric === "regs" ? "No of Registration" : "No of Applications";
+
+    var head, rows = [];
+    if(d){
+      rows = d.rows;
+      if(EX.query){
+        var q = EX.query.toLowerCase();
+        var sectorHit = EX.sector.toLowerCase().indexOf(q) >= 0;
+        if(!sectorHit) rows = rows.filter(function(r){ return (r[0]||"").toLowerCase().indexOf(q) >= 0; });
+      }
+      rows = expSortRows(rows);
+    }
+
+    var total = rows.reduce(function(a, r){ return a + r[1]; }, 0);
+    var max = rows.length ? rows[0][1] : 1;
+
+    if(!d){
+      $("expBody").innerHTML = '<tr><td colspan="4" class="empty">' +
+        (EX.lastError ? ("Could not compute this combination: " + esc(EX.lastError) +
+          "<br><span style='font-size:12px'>Press <b>Reset</b> to retry, or start the live server " +
+          "(<code>python3 server.py</code>) to compute any Category + Sector pair on demand.</span>")
+        : "Loading this combination…") + '</td></tr>';
+    } else if(!rows.length){
+      $("expBody").innerHTML = '<tr><td colspan="4" class="empty">' +
+        (d.rows.length ? "No sub-theme matches your search." :
+         "No records in the backend for this combination — try another Category/Sector.") + '</td></tr>';
+    } else {
+      $("expBody").innerHTML = rows.map(function(r, i){
+        return "<tr><td style='color:#8a94a6'>" + (i+1) + "</td><td>" + esc(r[0]) +
+          "</td><td class='num' style='font-weight:600'>" + nf(r[1]) + "</td><td>" +
+          bar(r[1], max) + "</td></tr>";
+      }).join("");
+    }
+
+    var bits = [];
+    bits.push("<b>" + rows.length + "</b> sub-theme" + (rows.length === 1 ? "" : "s"));
+    bits.push("<b>" + nf(total) + "</b> " + metricLabel.toLowerCase());
+    bits.push("in <b>" + esc(EX.category) + "</b>" + (EX.sector === ALLSEC ? "" : " · <b>" + esc(EX.sector) + "</b>"));
+    if(d && d.source === "live") bits.push('<span class="chip">fetched live just now</span>');
+    else if(d) bits.push('<span class="chip">from snapshot</span>');
+    if(EX.metric === "regs") bits.push("<span class='chip warnchip'>registrations cannot be split by Category/Sector - filters ignored</span>");
+    $("expFooter").innerHTML = bits.join(" &nbsp;·&nbsp; ");
+
+    // note line
+    var note;
+    if(EX.metric === "regs"){
+      note = "Registrations per sub-theme, all categories and sectors (the API only reports registrations as one combined figure). " +
+             "Switch Metric to <b>Applications</b> to use the Category and Sector filters.";
+    } else {
+      var spells = (bakedComboSpellings(snap, EX.category, EX.sector) || []);
+      note = "<b>" + esc(EX.category) + " · " + esc(EX.sector) + ".</b> " +
+             (EX.category !== ALLCAT && EX.sector !== ALLSEC
+               ? "Category and Sector are combined (both filters applied together). "
+               : "Pick a Category and/or Sector to narrow this table. ") +
+             (spells.length > 1 ? "This sector is stored under " + spells.length + " spellings upstream (" +
+               esc(spells.join(" + ")) + ") — counts are merged. " : "") +
+             "Applications = submissions filed against that sub-theme in the district tracker.";
+    }
+    $("expNote").innerHTML = note;
+
+    // keep filters consistent with what the API can actually do
+    var disabled = EX.metric === "regs";
+    $("expCategory").disabled = disabled;
+    $("expSector").disabled = disabled;
+  }
+
+  function bakedComboSpellings(snap, c, s){
+    var ex = explorer(snap); if(!ex) return [];
+    return ex.spellings && ex.spellings[comboKey(c, s)] || [];
+  }
+
+  function expInit(snap){
+    var ex = explorer(snap);
+    if(!ex){ $("expNote").textContent = "No snapshot loaded."; return; }
+
+    var cats = $("expCategory"), secs = $("expSector");
+    if(!cats.options.length){
+      cats.innerHTML = ex.categories.map(function(c){ return '<option value="'+esc(c)+'">'+esc(c)+'</option>'; }).join("");
+      secs.innerHTML = ex.sectors.map(function(s){ return '<option value="'+esc(s)+'">'+esc(s)+'</option>'; }).join("");
+      cats.value = EX.category; secs.value = EX.sector;
+
+      cats.addEventListener("change", function(e){ EX.category = e.target.value; renderExplorer(); });
+      secs.addEventListener("change", function(e){ EX.sector = e.target.value; renderExplorer(); });
+      $("expMetric").addEventListener("change", function(e){ EX.metric = e.target.value; renderExplorer(); });
+      $("expSort").addEventListener("change", function(e){ EX.sort = e.target.value; renderExplorer(); });
+      var t = null;
+      $("expSearch").addEventListener("input", function(e){
+        clearTimeout(t); EX.query = e.target.value.trim();
+        t = setTimeout(renderExplorer, 120);
+      });
+      $("expReset").addEventListener("click", function(){
+        EX.tried = {}; EX.lastError = null;
+        EX.category = ALLCAT; EX.sector = ALLSEC; EX.metric = "apps"; EX.sort = "desc"; EX.query = "";
+        cats.value = ALLCAT; secs.value = ALLSEC;
+        $("expMetric").value = "apps"; $("expSort").value = "desc"; $("expSearch").value = "";
+        renderExplorer();
+      });
+    }
+    renderExplorer();
+  }
+
+  // ---------- districts ----------
+  function currentDistricts(snap){
+    var D = snap.districts || {};
+    if(state.distState==="all") return (D.all && D.all.districts) || [];
+    return (D.by_state && D.by_state[state.distState] && D.by_state[state.distState].districts) || [];
+  }
+  function renderDistricts(snap){
+    var rows = currentDistricts(snap).slice();
+    if(state.distQuery){
+      var q = state.distQuery.toLowerCase();
+      rows = rows.filter(function(r){ return (r.district||"").toLowerCase().indexOf(q)>=0 ||
+                                            (r.state||"").toLowerCase().indexOf(q)>=0; });
+    }
+    rows.sort(function(a,b){ return (b.applications||0)-(a.applications||0); });
+    var shown = state.showAll ? rows : rows.slice(0,25);
+    $("distBody").innerHTML = shown.map(function(r){
+      var rate = r.registrations ? Math.min(100,(r.applications||0)/r.registrations*100) : 0;
+      return "<tr><td>"+esc(r.district)+"</td><td style='color:#5b6472'>"+esc(r.state)+"</td>"+
+        "<td class='num'>"+nf(r.registrations)+"</td><td class='num' style='font-weight:600'>"+nf(r.applications)+"</td>"+
+        "<td class='num'>"+nf(r.pitch_decks)+"</td><td>"+bar(rate*2,100,"g")+
+        " <span style='font-size:11px;color:#5b6472'>"+rate.toFixed(1)+"%</span></td></tr>";
+    }).join("") || "<tr><td colspan='6' style='color:#9aa4b2'>No districts match.</td></tr>";
+    $("distCount").textContent = shown.length + " of " + rows.length + " districts shown";
+  }
+
+  // ---------- live ----------
+  function setStatus(live, txt){
+    state.live = live;
+    $("statusDot").className = "dot " + (live ? "" : "stale");
+    $("statusText").textContent = txt || (live ? "Live" : "Snapshot");
+  }
+  function mergeQuick(p){
+    // light poll returns only the headline counters; keep the rest of the last full snapshot
+    ["submissions","teams","registrations","overview"].forEach(function(k){
+      if(p[k]) S[k] = p[k];
+    });
+    if(p.generated_at) S.generated_at = p.generated_at;
+  }
+  function loadLive(silent, quick){
+    var btn = $("refreshBtn");
+    if(!silent){ btn.disabled = true; btn.textContent = "Refreshing…"; }
+    var url = quick ? "api/live/quick" : "api/live/snapshot";
+    fetch(url, {cache:"no-store"})
+      .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
+      .then(function(j){
+        if(quick){
+          mergeQuick(j); render(S);                    // keep the rest of the full snapshot
+        } else {
+          EX.tried = {}; EX.lastError = null;          // full refresh = allowed to retry failed combos
+          if(!j.history && S && S.history) j.history = S.history;
+          render(j);
+        }
+        setStatus(true, quick ? "Live" : "Refreshed");
+        $("autoInfo").textContent = "Live — headline counters every 60s, full refresh every 10 min";
+        if(!silent) setTimeout(function(){ setStatus(true,"Live"); }, 2500);
+      })
+      .catch(function(e){
+        setStatus(false, "Snapshot only");
+        $("autoInfo").textContent = "Live feed unavailable ("+e.message+") — showing the last snapshot. Auto-refresh paused.";
+        if(state.timer){ clearInterval(state.timer); state.timer = null; }
+      })
+      .finally(function(){ btn.disabled=false; btn.textContent="Refresh now"; });
+  }
+  function startAuto(){
+    if(state.timer) clearInterval(state.timer);
+    var ticks = 0;
+    state.timer = setInterval(function(){
+      ticks++;
+      loadLive(true, ticks % 10 !== 0);   // light poll each minute, full snapshot every 10th
+    }, 60000);
+  }
+
+  $("refreshBtn").addEventListener("click", function(){ loadLive(false, false); });
+  $("stateSel").addEventListener("change", function(e){ state.distState = e.target.value; renderDistricts(S); });
+  $("distSearch").addEventListener("input", function(e){ state.distQuery = e.target.value; renderDistricts(S); });
+  $("showAll").addEventListener("change", function(e){ state.showAll = e.target.checked; renderDistricts(S); });
+
+  render(S);
+  loadLive(true, false);
+  startAuto();
+})();
+</script>
+</body>
+</html>
