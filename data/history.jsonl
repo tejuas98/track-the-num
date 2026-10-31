@@ -131,3 +131,4 @@
 {"ts": "2026-10-31T10:59:03+05:30", "submissions": 22801, "team_submissions": 14784, "remaining": 3925, "rate": 79, "applications": null, "pitch_decks": null, "registrations": 58405, "teams": 18709, "unteamed": 12675}
 {"ts": "2026-10-31T17:46:22+05:30", "submissions": 23546, "team_submissions": 15265, "remaining": 3921, "rate": 79.6, "applications": null, "pitch_decks": null, "registrations": 59638, "teams": 19186, "unteamed": 12743}
 {"ts": "2026-10-31T23:11:15+05:30", "submissions": 24307, "team_submissions": 15780, "remaining": 3753, "rate": 80.8, "applications": null, "pitch_decks": null, "registrations": 60510, "teams": 19533, "unteamed": 12713}
+{"ts": "2026-11-01T02:57:30+05:30", "submissions": 24740, "team_submissions": 16063, "remaining": 3570, "rate": 81.8, "applications": 32315, "pitch_decks": 16063, "registrations": 60762, "teams": 19633, "unteamed": 12682}
